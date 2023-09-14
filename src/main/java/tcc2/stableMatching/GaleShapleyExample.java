@@ -1,8 +1,8 @@
-package br.unisinos;
+package tcc2.stableMatching;
 
 import java.util.*;
 
-public class GaleShapley {
+public class GaleShapleyExample {
     private int N;
     private int[][] menPreference;
     private int[][] womenPreference;
@@ -10,7 +10,7 @@ public class GaleShapley {
     private int[] menPartner;
     private boolean[] menEngaged;
 
-    public GaleShapley(int[][] menPreference, int[][] womenPreference) {
+    public GaleShapleyExample(int[][] menPreference, int[][] womenPreference) {
         N = menPreference.length;
         this.menPreference = menPreference;
         this.womenPreference = womenPreference;
