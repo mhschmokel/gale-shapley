@@ -49,15 +49,18 @@ public class GaleShapley implements StableMatching {
 
     private boolean mentorPrefersNewStudent(Mentor mentor, Student currentStudent, Student newStudent) {
         int rankCurrent = mentor.getPreferences().stream()
-                .filter(pref -> pref.getPreferredPersona().getUuid().equals(currentStudent.getUuid()))
+                .filter(pref -> {
+                    return pref.getPreferredPersona().getUuid().equals(currentStudent.getUuid());
+                })
                 .findFirst().orElse(new Preference(null, -1)).getRank();
 
         int rankNew = mentor.getPreferences().stream()
-                .filter(pref -> pref.getPreferredPersona().equals(newStudent))
+                .filter(pref -> pref.getPreferredPersona().getUuid().equals(newStudent.getUuid()))
                 .findFirst().orElse(new Preference(null, -1)).getRank();
 
         return rankNew > rankCurrent;
     }
+
 
     private boolean hasUnmatchedStudentOrMentor(Set<Student> students, Set<Mentor> mentors) {
         final var hasUnmatchedStudent = students.stream().anyMatch(student -> !student.isMatched());

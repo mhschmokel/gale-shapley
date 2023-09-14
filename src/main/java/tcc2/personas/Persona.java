@@ -4,6 +4,6 @@ import lombok.Data;
 
 import java.util.UUID;
 
-interface Persona {
-    UUID getUuid();
+public interface Persona {
+    public UUID getUuid();
 }
