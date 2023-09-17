@@ -13,25 +13,26 @@ public class GaleShapley implements StableMatching {
         while (hasUnmatchedStudentOrMentor(students, mentors)) {
             for (Student student : students) {
                 if (!student.isMatched()) {
-                    Preference preferredMentorPreference = getTopPreferredMentor(student);
+                    Preference studentPreferredMentor = getTopPreferredMentor(student);
 
-                    if (preferredMentorPreference != null) {
-                        Mentor preferredMentor = (Mentor) preferredMentorPreference.getPreferredPersona();
+                    if (studentPreferredMentor != null) {
+                        Mentor preferredMentor = (Mentor) studentPreferredMentor.getPreferredPersona();
+
 
                         // Check if the mentor is already matched
                         if (preferredMentor.getCurrentMatch() == null) {
                             // Mentor is unmatched, engage them
-                            student.setCurrentMatch(preferredMentorPreference);
-                            preferredMentor.setCurrentMatch(new Preference(student, preferredMentorPreference.getRank()));
+                            student.setCurrentMatch(studentPreferredMentor);
+                            preferredMentor.setCurrentMatch(preferredMentor.getPreferenceByUuid(student.getUuid()));
                         } else {
                             // Check mentor's preference
                             Student currentMatch = (Student) preferredMentor.getCurrentMatch().getPreferredPersona();
 
                             if (mentorPrefersNewStudent(preferredMentor, currentMatch, student)) {
                                 // Reject current match and match with new student
-                                currentMatch.setCurrentMatch(null); // unmatch the current student
-                                student.setCurrentMatch(preferredMentorPreference);
-                                preferredMentor.setCurrentMatch(new Preference(student, preferredMentorPreference.getRank()));
+                                currentMatch.setCurrentMatch(null); // undo the current student
+                                student.setCurrentMatch(studentPreferredMentor);
+                                preferredMentor.setCurrentMatch(preferredMentor.getPreferenceByUuid(student.getUuid()));
                             }
                         }
                     }
@@ -48,15 +49,8 @@ public class GaleShapley implements StableMatching {
     }
 
     private boolean mentorPrefersNewStudent(Mentor mentor, Student currentStudent, Student newStudent) {
-        int rankCurrent = mentor.getPreferences().stream()
-                .filter(pref -> {
-                    return pref.getPreferredPersona().getUuid().equals(currentStudent.getUuid());
-                })
-                .findFirst().orElse(new Preference(null, -1)).getRank();
-
-        int rankNew = mentor.getPreferences().stream()
-                .filter(pref -> pref.getPreferredPersona().getUuid().equals(newStudent.getUuid()))
-                .findFirst().orElse(new Preference(null, -1)).getRank();
+        int rankCurrent = mentor.getCurrentMatch().getRank();
+        int rankNew = mentor.getPreferenceByUuid(newStudent.getUuid()).getRank();
 
         return rankNew > rankCurrent;
     }

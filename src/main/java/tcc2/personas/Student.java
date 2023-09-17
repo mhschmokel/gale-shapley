@@ -39,4 +39,15 @@ public class Student implements Persona {
     public void addPreference(Preference preference) {
         preferences.add(preference);
     }
+
+    @Override
+    public Preference getPreferenceByUuid(UUID uuid) {
+        Preference preference = null;
+        for (Preference p : preferences) {
+            if (p.getPreferredPersona().getUuid() == uuid) {
+                preference = p;
+            }
+        }
+        return preference;
+    }
 }
