@@ -6,7 +6,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -19,25 +22,51 @@ public class Student implements Persona {
     private String name;
 
     @EqualsAndHashCode.Exclude
-    private final List<Preference> preferences = new ArrayList<Preference>();
+    private final Set<Preference> preferences = new HashSet<Preference>();
+
+    @EqualsAndHashCode.Exclude
+    private final Set<Preference> remainingPreferences = new HashSet<Preference>();
+
+    @EqualsAndHashCode.Exclude
+    private final Set<Preference> rejectedPreferences = new HashSet<Preference>();
 
     @EqualsAndHashCode.Exclude
     private boolean isMatched = false;
 
-    private Preference  currentMatch;
+    @EqualsAndHashCode.Exclude
+    private boolean noMatchAvailable;
+
+    private Preference currentMatch;
 
     public Student(String name) {
         this.uuid = UUID.randomUUID();
         this.name = name;
     }
 
-    public void setCurrentMatch(Preference mentor) {
-        this.currentMatch = mentor;
-        this.setMatched(mentor != null);
+    public void dismissCurrentMatch() {
+        this.currentMatch = null;
+        this.setMatched(false);
+    }
+    public void setCurrentMatch(Persona  mentor) {
+        Preference p = this.getPreferenceByUuid(mentor.getUuid());
+
+        if (p == null) {
+            p = new Preference(mentor, 0);
+        }
+
+        this.currentMatch = p;
+        this.setMatched(true);
     }
 
     public void addPreference(Preference preference) {
         preferences.add(preference);
+        remainingPreferences.add(preference);
+    }
+
+    @Override
+    public void rejectPreference(Preference p) {
+        remainingPreferences.remove(p);
+        rejectedPreferences.add(p);
     }
 
     @Override
@@ -49,5 +78,24 @@ public class Student implements Persona {
             }
         }
         return preference;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name); // Exclude preferences and other fields that may cause cyclic reference
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Student other = (Student) obj;
+        return Objects.equals(uuid, other.uuid) &&
+                Objects.equals(name, other.name);
+    }
+
+    @Override
+    public String toString() {
+        return "Student[ID: " + uuid + ", Name: " + name + "]";
     }
 }

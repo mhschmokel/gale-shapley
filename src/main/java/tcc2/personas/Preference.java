@@ -8,4 +8,9 @@ import lombok.Data;
 public class Preference {
     private Persona preferredPersona;
     private int rank;
+
+    @Override
+    public String toString() {
+        return "Preference[Rank: " + rank + ", Persona ID: " + preferredPersona.getUuid() + "]";
+    }
 }

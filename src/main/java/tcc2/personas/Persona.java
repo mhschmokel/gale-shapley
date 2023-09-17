@@ -8,4 +8,6 @@ public interface Persona {
     public UUID getUuid();
 
     public Preference getPreferenceByUuid(UUID uuid);
+
+    public void rejectPreference(Preference p);
 }

@@ -6,7 +6,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -19,7 +22,10 @@ public class Mentor implements Persona {
     private String name;
 
     @EqualsAndHashCode.Exclude
-    private final List<Preference> preferences = new ArrayList<Preference>();
+    private final Set<Preference> preferences = new HashSet<Preference>();
+
+    @EqualsAndHashCode.Exclude
+    private final Set<Preference> rejectedPreferences = new HashSet<Preference>();
 
     @EqualsAndHashCode.Exclude
     private boolean isMatched = false;
@@ -31,9 +37,20 @@ public class Mentor implements Persona {
         this.name = name;
     }
 
-    public void setCurrentMatch(Preference  student) {
-        this.currentMatch = student;
-        this.setMatched(student != null);
+    public void dismissCurrentMatch() {
+        this.currentMatch = null;
+        this.setMatched(false);
+    }
+
+    public void setCurrentMatch(Persona  student) {
+        Preference p = this.getPreferenceByUuid(student.getUuid());
+
+        if (p == null) {
+            p = new Preference(student, 0);
+        }
+
+        this.currentMatch = p;
+        this.setMatched(true);
     }
 
     public void addPreference(Preference preference) {
@@ -49,5 +66,30 @@ public class Mentor implements Persona {
             }
         }
         return preference;
+    }
+
+    @Override
+    public void rejectPreference(Preference p) {
+        preferences.remove(p);
+        rejectedPreferences.add(p);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name); // Exclude preferences and other fields that may cause cyclic reference
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Mentor other = (Mentor) obj;
+        return Objects.equals(uuid, other.uuid) &&
+                Objects.equals(name, other.name);
+    }
+
+    @Override
+    public String toString() {
+        return "Mentor[ID: " + uuid + ", Name: " + name + "]";
     }
 }
