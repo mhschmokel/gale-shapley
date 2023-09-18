@@ -1,10 +1,9 @@
 package tcc2.stableMatching;
 
-import tcc2.personas.Mentor;
-import tcc2.personas.Student;
-import tcc2.personas.Preference;
-
 import org.junit.jupiter.api.Test;
+import tcc2.personas.Mentor;
+import tcc2.personas.Preference;
+import tcc2.personas.Student;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +12,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GaleShapleyTest {
+class SMUPTest {
 
     @Test
     void testPerfectMatch5x5() {
@@ -98,8 +100,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3, student4, student5);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         assertEquals(mentor1, student1.getCurrentMatch().getPreferredPersona());
@@ -154,8 +156,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3, student4, student5);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         assertEquals(mentor1, student1.getCurrentMatch().getPreferredPersona());
@@ -228,8 +230,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3, student4, student5);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         assertEquals(mentor1, student1.getCurrentMatch().getPreferredPersona());
@@ -321,8 +323,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3, student4, student5);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         // Given the cyclic nature of the top preferences, these assertions ensure that
@@ -377,8 +379,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         assertEquals(mentor3, student1.getCurrentMatch().getPreferredPersona());
@@ -422,8 +424,8 @@ class GaleShapleyTest {
             }
         }
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions: Ensure the match is stable
         assertTrue(isMatchingStable(students, mentors));
@@ -472,8 +474,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         assertTrue(isMatchingStable(students, mentors));
 
@@ -525,8 +527,8 @@ class GaleShapleyTest {
         Set<Student> students = Set.of(student1, student2, student3, student4, student5);
         Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
 
-        GaleShapley galeShapley = new GaleShapley();
-        galeShapley.match(students, mentors);
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
 
         // Assertions
         assertEquals(mentor1, student1.getCurrentMatch().getPreferredPersona());
@@ -537,6 +539,52 @@ class GaleShapleyTest {
 
         assertTrue(isMatchingStable(students, mentors));
     }
+
+    @Test
+    void testUnacceptableRanking5x5() {
+        // Students
+        Student student1 = new Student("Student1");
+        Student student2 = new Student("Student2");
+        Student student3 = new Student("Student3");
+        Student student4 = new Student("Student4");
+        Student student5 = new Student("Student5");
+
+        // Mentors
+        Mentor mentor1 = new Mentor("Mentor1");
+        Mentor mentor2 = new Mentor("Mentor2");
+        Mentor mentor3 = new Mentor("Mentor3");
+        Mentor mentor4 = new Mentor("Mentor4");
+        Mentor mentor5 = new Mentor("Mentor5");
+
+        // Rankings
+        student1.addPreference(new Preference(mentor1, 1));
+        student2.addPreference(new Preference(mentor2, -1)); // Mentor2 is unacceptable for Student2
+        student3.addPreference(new Preference(mentor3, 3));
+        student4.addPreference(new Preference(mentor4, 1));
+        student5.addPreference(new Preference(mentor5, 1));
+
+        mentor1.addPreference(new Preference(student1, 1));
+        mentor2.addPreference(new Preference(student2, 2));
+        mentor3.addPreference(new Preference(student3, 1));
+        mentor4.addPreference(new Preference(student4, -1)); // Student4 is unacceptable for Mentor4
+        mentor5.addPreference(new Preference(student5, 2));
+
+        Set<Student> students = Set.of(student1, student2, student3, student4, student5);
+        Set<Mentor> mentors = Set.of(mentor1, mentor2, mentor3, mentor4, mentor5);
+
+        SMUP smup = new SMUP();
+        smup.match(students, mentors);
+
+        // Assertions
+        assertEquals(mentor1, student1.getCurrentMatch().getPreferredPersona());
+        assertNull(student2.getCurrentMatch()); // No mentor is matched with student2
+        assertEquals(mentor3, student3.getCurrentMatch().getPreferredPersona());
+        assertNull(student4.getCurrentMatch()); // No mentor is matched with student4
+        assertEquals(mentor5, student5.getCurrentMatch().getPreferredPersona());
+
+        assertTrue(isMatchingStable(students, mentors));
+    }
+
 
 
 

@@ -80,6 +80,21 @@ public class Student implements Persona {
         return preference;
     }
 
+    public Preference getRemainingPreferenceByUuid(UUID uuid) {
+        Preference rejectedPreference = null;
+        for (Preference p : rejectedPreferences) {
+            if (p.getPreferredPersona().getUuid() == uuid) {
+                rejectedPreference = p;
+                break;
+            }
+        }
+        return rejectedPreference;
+    }
+
+    public boolean getNoMatchAvailable() {
+        return this.noMatchAvailable;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(uuid, name); // Exclude preferences and other fields that may cause cyclic reference

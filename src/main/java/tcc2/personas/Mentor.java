@@ -32,9 +32,18 @@ public class Mentor implements Persona {
 
     private Preference  currentMatch;
 
+    private int maxNumOfStudents;
+
     public Mentor(String name) {
         this.uuid = UUID.randomUUID();
         this.name = name;
+        this.maxNumOfStudents = 1;
+    }
+
+    public Mentor(String name, int maxNumOfStudents) {
+        this.uuid = UUID.randomUUID();
+        this.name = name;
+        this.maxNumOfStudents = maxNumOfStudents;
     }
 
     public void dismissCurrentMatch() {
@@ -63,9 +72,21 @@ public class Mentor implements Persona {
         for (Preference p : preferences) {
             if (p.getPreferredPersona().getUuid() == uuid) {
                 preference = p;
+                break;
             }
         }
         return preference;
+    }
+
+    public Preference getRemainingPreferenceByUuid(UUID uuid) {
+        Preference rejectedPreference = null;
+        for (Preference p : rejectedPreferences) {
+            if (p.getPreferredPersona().getUuid() == uuid) {
+                rejectedPreference = p;
+                break;
+            }
+        }
+        return rejectedPreference;
     }
 
     @Override
